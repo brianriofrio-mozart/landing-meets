@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         to_number,
         "conversation_initiation_client_data": {
             "dynamic_variables": {
-            "pin_meet": pin_meet
+            "pin": pin_meet
             }
         }
     };
