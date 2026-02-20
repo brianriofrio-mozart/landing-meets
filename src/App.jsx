@@ -1,5 +1,5 @@
 import OutboundModal from "./components/OutboundModal";
-import "./app.css";
+import "./App.css";
 
 function App() {
   return (
