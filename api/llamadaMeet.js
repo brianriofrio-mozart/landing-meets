@@ -14,11 +14,17 @@ export default async function handler(req, res) {
     // 🔒 Validaciones mínimas
     const phoneRegex = /^\+[1-9]\d{7,14}$/;
 
+    if (!to_number) {
+      return res.status(400).json({ error: "Missing phone number" });
+    }
+    
+    const cleanNumber = to_number.replace(/[^\d+]/g, "");
+
     if (!agent_id || !agent_phone_number_id) {
       return res.status(400).json({ error: "Missing agent data" });
     }
 
-    if (!phoneRegex.test(to_number)) {
+    if (!phoneRegex.test(cleanNumber)) {
       return res.status(400).json({ error: "Invalid phone format" });
     }
 
@@ -29,7 +35,7 @@ export default async function handler(req, res) {
     const body = {
         agent_id,
         agent_phone_number_id,
-        to_number,
+        to_number: cleanNumber,
         "conversation_initiation_client_data": {
             "dynamic_variables": {
             "pin": pin

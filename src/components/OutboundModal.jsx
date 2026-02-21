@@ -5,7 +5,7 @@ const OutboundModal = () => {
   const [formData, setFormData] = useState({
     agentId: '',
     agent_phone_number_id: '',
-    number: '', 
+    to_number: '', 
     pin: ''
   });
 
@@ -90,10 +90,10 @@ const OutboundModal = () => {
             <label><Phone size={14}/> Número Google Meet</label>
             <input 
               type="tel" 
-              name="number" 
+              name="to_number" 
               placeholder="+57..." 
               required 
-              value={formData.number}
+              value={formData.to_number}
               onChange={handleChange}
             />
           </div>
