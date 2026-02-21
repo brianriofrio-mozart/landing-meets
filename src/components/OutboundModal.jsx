@@ -3,7 +3,7 @@ import { Phone, Hash, Bot, Radio, Loader2, CheckCircle, AlertCircle } from 'luci
 
 const OutboundModal = () => {
   const [formData, setFormData] = useState({
-    agentId: '',
+    agent_id: '',
     agent_phone_number_id: '',
     to_number: '', 
     pin: ''
@@ -68,9 +68,9 @@ const OutboundModal = () => {
             <label><Bot size={14}/> ID del Agente</label>
             <input 
               type="text" 
-              name="agentId" 
+              name="agent_id" 
               placeholder="Agent ID" 
-              value={formData.agentId}
+              value={formData.agent_id}
               onChange={handleChange}
             />
           </div>
