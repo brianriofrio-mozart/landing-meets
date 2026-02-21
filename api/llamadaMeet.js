@@ -8,7 +8,7 @@ export default async function handler(req, res) {
       agent_id,
       agent_phone_number_id,
       to_number,
-      pin_meet
+      pin
     } = req.body;
 
     // 🔒 Validaciones mínimas
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Invalid phone format" });
     }
 
-    if (!pin_meet || pin_meet.length < 3) {
+    if (!pin || pin.length < 3) {
       return res.status(400).json({ error: "Invalid PIN" });
     }
 
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         to_number,
         "conversation_initiation_client_data": {
             "dynamic_variables": {
-            "pin": pin_meet
+            "pin": pin
             }
         }
     };

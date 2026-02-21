@@ -1,105 +1,136 @@
 import { useState } from "react";
+import { Phone, Hash, Bot, Radio, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 const OutboundModal = () => {
   const [formData, setFormData] = useState({
-    agent_id: "",
-    agent_phone_number_id: "",
-    to_number: "",
-    pin_meet: ""
+    agentId: '',
+    agent_phone_number_id: '',
+    number: '', 
+    pin: ''
   });
 
-  const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setResponse(null);
+  const handleCall = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus(null);
 
-  try {
-    const res = await fetch("/api/llamadaMeet", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const response = await fetch('/api/llamadaMeet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
 
-    const data = await res.json();
-    setResponse(data);
-  } catch (error) {
-    setResponse({ error: "Error calling API" });
-  } finally {
-    setLoading(false);
-  }
-};
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error || 'Error en la conexión SIP');
+
+      // AJUSTE: ElevenLabs SIP Trunk devuelve 'conversation_id' o 'call_id'
+      const idLlamada = data.conversation_id || data.call_id || 'Iniciada';
+
+      setStatus({ 
+        type: 'success', 
+        msg: `Llamada en curso`, 
+        subMsg: `ID: ${idLlamada}` 
+      });
+    } catch (error) {
+      setStatus({ 
+        type: 'error', 
+        msg: 'Fallo al conectar', 
+        subMsg: error.message 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="modal modal--visible">
-      <div className="modal__overlay"></div>
+    <div className="dashboard-container">
+      <div className="glass-card">
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+          <div className={`icon-container ${loading ? 'pulse' : ''}`}>
+            <Bot size={40} color="#60a5fa" />
+          </div>
+        </div>
+        
+        <h1>Meet Connector AI</h1>
+        <p className="subtitle">Infraestructura SIP Trunk Activa</p>
 
-      <div className="modal__content">
-        <h2 className="modal__title">Crear Llamada Outbound</h2>
+        <form onSubmit={handleCall}>
+          <div className="input-group">
+            <label><Bot size={14}/> ID del Agente</label>
+            <input 
+              type="text" 
+              name="agentId" 
+              placeholder="Agent ID" 
+              value={formData.agentId}
+              onChange={handleChange}
+            />
+          </div>
 
-        <form className="modal__form" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="agent_id"
-            placeholder="Agent ID"
-            className="modal__input"
-            onChange={handleChange}
-            required
-          />
+          <div className="input-group">
+            <label><Bot size={14}/> ID del Telefono</label>
+            <input 
+              type="text" 
+              name="agent_phone_number_id" 
+              placeholder="Agent Phone Number ID" 
+              value={formData.agent_phone_number_id}
+              onChange={handleChange}
+            />
+          </div>
 
-          <input
-            type="text"
-            name="agent_phone_number_id"
-            placeholder="Agent Phone Number ID"
-            className="modal__input"
-            onChange={handleChange}
-            required
-          />
+          <div className="input-group">
+            <label><Phone size={14}/> Número Google Meet</label>
+            <input 
+              type="tel" 
+              name="number" 
+              placeholder="+57..." 
+              required 
+              value={formData.number}
+              onChange={handleChange}
+            />
+          </div>
 
-          <input
-            type="text"
-            name="to_number"
-            placeholder="+1234567890"
-            className="modal__input"
-            onChange={handleChange}
-            required
-          />
+          <div className="input-group">
+            <label><Hash size={14}/> PIN de Reunión</label>
+            <input 
+              type="text" 
+              name="pin" 
+              placeholder="000 000#..." 
+              required 
+              value={formData.pin}
+              onChange={handleChange}
+            />
+          </div>
 
-          <input
-            type="text"
-            name="pin_meet"
-            placeholder="PIN"
-            className="modal__input"
-            onChange={handleChange}
-            required
-          />
-
-          <button
-            type="submit"
-            className="modal__submit"
-            disabled={loading}
-          >
-            {loading ? "Enviando..." : "Iniciar Llamada"}
+          <button type="submit" className="btn-call" disabled={loading}>
+            {loading ? <Loader2 className="spin" size={20} /> : <Radio size={20} />}
+            {loading ? 'Estableciendo enlace SIP...' : 'Llamar a la Reunión'}
           </button>
         </form>
 
-        {response && (
-          <pre className="modal__response">
-            {JSON.stringify(response, null, 2)}
-          </pre>
+        {status && (
+          <div className={`status-msg ${status.type === 'success' ? 'status-success' : 'status-error'}`}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {status.type === 'success' ? <CheckCircle size={20}/> : <AlertCircle size={20}/>}
+              <div>
+                <strong>{status.msg}</strong>
+                <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>{status.subMsg}</div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
-};
+}
+
 
 export default OutboundModal;
